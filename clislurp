@@ -1,0 +1,41 @@
+#!/usr/bin/env zsh
+wpm=120
+wpm=240
+source=/dev/stdin
+color="31"		# red
+colorB="32"		# green
+#color="33"		# yellow
+colorB="34"		# blue
+colorH="1;$color" 	# bold
+
+colorH="\e[${colorH}m"
+colorB="\e[${colorB}m"
+clear="\e[00m\e[00m"
+delay=$((60.0/wpm))	# seconds
+
+wc=0
+lc=0
+set -o shwordsplit
+oldword=""
+cat $source | sed 's/^$/. /' | tr '\n' ' ' | sed 's/\([^ ][.!?]\)[ 	]/\1\n/g' | while read line ; do
+	for word in $line ; do
+		wc=$((wc+1))
+		length=$(echo "$word" | wc -c)
+		head=$((length/2))
+		tail=$head
+		if [[ $((head*2)) -eq $length ]] ; then
+			head=$((head-1))
+		fi
+		headC=$(echo "$word" | head --bytes $head)
+		tailC=$(echo "$word" | tail --bytes $tail)
+		midC=$(echo "$word" | head --bytes $((head+1)) | tail --bytes 1)
+		(echo "$word" | festival --tts 2>&1 ) > /dev/null &
+		clear
+		echo -e "${clear}${oldword}\n\n\t\t${colorB}${headC}${colorH}${midC}${clear}${colorB}${tailC}${clear}\n\n\nwords: $wc\t\tlines: ${lc}\t\tseconds:$(((wc+lc)*delay))"
+		sleep $delay
+		oldword=$word
+	done
+	sleep $delay
+	lc=$((lc+1))
+done
+
