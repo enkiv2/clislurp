@@ -31,7 +31,9 @@ cat $source | sed 's/^$/. /' | tr '\n' ' ' | sed 's/\([^ ][.!?]\)[ 	]/\1\n/g' | 
 		midC=$(echo "$word" | head --bytes $((head+1)) | tail --bytes 1)
 		(echo "$word" | festival --tts 2>&1 ) > /dev/null &
 		clear
-		echo -e "${clear}${oldword}\n\n\t\t${colorB}${headC}${colorH}${midC}${clear}${colorB}${tailC}${clear}\n\n\nwords: $wc\t\tlines: ${lc}\t\tseconds:$(((wc+lc)*delay))"
+		statusline="words: $wc\t\tlines: ${lc}\t\tseconds:$(((wc+lc)*delay))"
+		currentWord="${colorB}${headC}${colorH}${midC}${clear}${colorB}${tailC}${clear}"
+		echo -e "${clear}${oldword}\n\n\t\t${currentWord}\n\n\n${statusline}\n"
 		sleep $delay
 		oldword=$word
 	done
